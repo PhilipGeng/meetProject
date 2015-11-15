@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" 
+"http://www.w3.org/TR/html4/frameset.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Meet&Meat</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+var pointer = 300;
+var login_status = 0;
+var pageQ = ["#homepage","#dinner"];
+var mode = 0;//0:normal; 1:fulldisplay
+$(document).ready(doReady);
+function doReady(){
+	$("html").bind("click",iflogin);
+	$(window).bind("keyup",keypresshandler);
+	$("#fullview").bind("click",fullviewclick);
+	$("#leftRotBar").bind("click",leftRotate);
+	$("#rightRotBar").bind("click",rightRotate);
+	iflogin();
+/*	$.ajax({
+             type: "GET",
+             url: "ajax_load.txt",
+             success: function(data){
+                         var innerHTML =$('#dinner').html();
+                         $('#dinner').html(data+innerHTML);
+						 
+                      }
+         });
+*/
+}
+function iflogin(){
+	if(login_status == 0){
+//		$("#account").addClass("hover");
+	}
+}
+function keypresshandler(event){
+	if(mode == 1)
+		return;
+	switch(event.keyCode){
+		case 37://left
+			leftRotate();
+		break;
+		case 65:
+			leftRotate();
+		break;
+		case 39://right
+			rightRotate();
+		break;
+		case 68:
+			rightRotate();
+		break;
+		case 27://esc
+			fullviewclick();
+		break;
+	}
+}
+function leftRotate(){
+	//leaving  pageQ[pointer]
+	$(pageQ[pointer%2]).addClass("leavefromleft");
+	pointer++;
+	setTimeout(loadPrev,500);
+	//coming in pageQ[pointer++%3]
+}
+function loadPrev(){
+	$(pageQ[(pointer-1)%2]).addClass("hide");
+	$(pageQ[(pointer-1)%2]).removeClass("leavefromleft");
+	$(pageQ[pointer%2]).addClass("infromright");
+	$(pageQ[(pointer-1)%2]).removeClass("show");
+	$(pageQ[pointer%2]).removeClass("hide");
+	setTimeout(clear,500);
+}
+function clear(){
+	$(".fullscreen").removeClass("infromright");
+	$(".fullscreen").removeClass("infromleft");
+	$(".fullscreen").removeClass("leavefromright");
+	$(".fullscreen").removeClass("leavefromright");
+}
+function rightRotate(){
+	//leaving pageQ[pointer]
+	$(pageQ[pointer%2]).addClass("leavefromright");
+	pointer = pointer+1;
+	setTimeout(loadNext,500);
+	//coming in pageQ[pointer+=2%3]
+}
+function loadNext(){
+	$(pageQ[(pointer-1)%2]).addClass("hide");
+	$(pageQ[(pointer-1)%2]).removeClass("leavefromleft");
+	$(pageQ[pointer%2]).addClass("infromleft");
+	$(pageQ[(pointer-1)%2]).removeClass("show");
+	$(pageQ[pointer%2]).removeClass("hide");
+	setTimeout(clear,500);
+}
+function fullviewclick(){
+	mode = 1;
+	$(".fullscreen").addClass("display");
+	$(".fullscreen").removeClass("hide");
+	$(".fullscreen").removeClass("show");
+	$(".rotbar").addClass("hide");
+	$(".onhoverexpand").addClass("hide");
+	$(".fullscreen").bind("click",fullscreenclick);
+	$(".cover").css("z-index","2");
+}
+function fullscreenclick(event){
+	mode = 0;
+	$(".cover").css("z-index","-1");
+	$(".fullscreen").unbind("click");
+	$(".fullscreen").removeClass("display");
+	$(".rotbar").removeClass("hide");
+	$(".onhoverexpand").removeClass("hide");
+	$(".fullscreen").addClass("hide");
+	$(event.target).removeClass("hide");
+	$(event.target).addClass("show");
+	if(event.target.id=="homepage")
+		pointer = 300;
+	else
+		pointer = 301;
+
+}
+function notify(msg){
+	$("#searchbar").html(msg);
+	$("#searchbar").addClass("notify");
+	setTimeout("clear()",2000);
+}
+function clear(){
+	$("#searchbar").html("");
+	$("#searchbar").removeClass("notify");
+}
+</script>
+</head>
+<body>
+<div id="container">
+
+<div id="homepage" class="fullscreen show">
+<iframe id = "hp_frame" src="admin/homepage.html"></iframe>
+<div class="cover" onclick="document.getElementById('homepage').click()"><h1>HOMEPAGE</h1></div>
+</div>
+<div id="dinner" class="fullscreen hide">
+<iframe id = "dinner_frame" src="dinnerlist/dinnerlist.php"></iframe>
+<div class="cover" onclick="document.getElementById('dinner').click()"><h1>DINNER</h1></div>
+</div>
+
+<div id="searchbar" class="onhoverexpand">
+</div>
+<button id="leftRotBar" class="rotbar">
+	rotate<br>left
+</button>
+<button id="rightRotBar" class="rotbar">
+	rotate<br> right
+</button>
+<button id="fullview" class="rotbar">
+	full<br>screen
+</button>
+</body>
+</html>
